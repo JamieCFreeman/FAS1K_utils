@@ -5,8 +5,11 @@ import pandas as pd
 
 # Function to calc per-site heterozygosity
 def calc_seq_het(file_name, skip_line1=False):
-    ''' Count heterozygous sites for fas1k file (or fasta file).
-    If fasta header is present, set skip_line1=True to ignore header line.'''
+    ''' 
+    Count heterozygous sites for fas1k file (or fasta file).
+    If fasta header is present, set skip_line1=True to ignore header line.
+    Output is list containing: file name, count of N calls, count of het calls, total sites (including Ns).
+    '''
     # Open input file , initialize empty variables
     vfile = open(file_name, 'r')
     # If fasta file w/ header, skip first line
@@ -34,9 +37,21 @@ def calc_seq_het(file_name, skip_line1=False):
     
     return [os.path.basename(file_name), n_calls, het_calls, total_sites]
 
+def per_site_het(file_name, skip_lin1=False):
+    '''
+    Returns per-site heterozygosity for .fas1k file.
+    '''
+    # Get counts
+    counts = calc_seq_het(file_name, skip_line1=False)
+    # Get proportion of het sites/ called sites
+    het = counts[2] / (counts[3] - counts[1])
+    return het
+
 def get_hom_tract_lengths(file_name):
-    ''' Get lengths of homozygous tracts from fas1k file- currently ignores Ns, 
-    (which probably inflates tract lengths how currently written '''
+    ''' 
+    Get lengths of homozygous tracts from fas1k file- currently ignores Ns, 
+    (which probably inflates tract lengths). Consider in-progress. 
+    '''
     # Read in file
     files = open(file_name, 'r', newline=None)
     lines = files.readlines()
