@@ -44,8 +44,10 @@ def get_fas1k_length(fas1k_file):
     last_line = len(lines[len(lines)-1].strip())
     return (n_lines*line_len) + last_line
 
-def get_fas1k_ploidy(fas1k_file):
-    ''' Compare all characters present in file to those expected based on ploidy, return ploidy as 1 or 2.'''
+def get_fas1k_ploidy(fas1k_file, soft_mask=False):
+    ''' Compare all characters present in file to those expected based on ploidy, return ploidy as 1 or 2.
+    If you know soft masking has been used, set soft_mask=True. '''
+    # When using existing fas1k files, make sure you know what filtering has been performed
     # List legal characters for haploid and diploid
     diploid_set = set(('A', 'T', 'C', 'G', 'N', 'Y', 'R', 'W', 'S', 'K', 'M'))
     haploid_set = set(('A', 'T', 'C', 'G', 'N'))
@@ -56,12 +58,20 @@ def get_fas1k_ploidy(fas1k_file):
         return 1
     elif (all_char_set.union(diploid_set) == diploid_set):
         return 2
+    # Only look for soft-masked nts when argument soft_mask is set to true
+    if (soft_mask == True):
+        softmask_diploid_set = set(('a', 't', 'c', 'g', 'n', 'y', 'r', 'w', 's', 'k', 'm'))
+        softmask_haploid_set = set(('a', 't', 'c', 'g', 'n'))
+        if (all_char_set.union(haploid_set).union(softmask_haploid_set) == haploid_set.union(softmask_haploid_set)):
+            return 1
+        elif (all_char_set.union(diploid_set).union(softmask_diploid_set) == diploid_set.union(softmask_diploid_set)):
+            return 2
     # If doesn't match either, return unexpected characters
     # (uncovered edge case- fas1k that doesn't have any occurance of 1 nt- 
     #   would only expect this to occur if you were trying to use it on a small
-    #   slice of a fas1k file.)  
+    #   slice of a fas1k file.)
     else:
-        return all_char_set.difference(diploid_set)
+        return "Unexpected characters encountered: " + str(all_char_set.difference(diploid_set))
 
 def get_fas1k_char(fas1k_file):
     ''' Returns a python set of all characters present in file. '''
