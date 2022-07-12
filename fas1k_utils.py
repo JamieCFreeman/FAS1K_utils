@@ -3,36 +3,38 @@
 import os.path
 import pandas as pd
 
+def subseq_from_lines(start, end, line_len, lines):
+    ''' Helper function for extract_strain_subseq, you probably don't want to call this.
+    # Functions stolen from Chris to get nt of interest from fas1k files.
+    # Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py" '''
+    # Retrieve the sequence
+    curr_line = start // line_len
+    start_index = start %  line_len
+    end_line = end // line_len
+    end_index = end % line_len
+    seq = ''
+    if curr_line == end_line:
+        seq += lines[curr_line].strip()[start_index:end_index]
+    else:
+        seq += lines[curr_line].strip()[start_index:]
+        curr_line += 1
+        while curr_line < end_line:
+            seq += lines[curr_line].strip()
+            curr_line += 1
+            seq += lines[curr_line].strip()[:end_index]
+    return(seq)
 
-# Functions stolen from Chris to get nt of interest from fas1k files.
-# Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py"
-# For retrieving a sequence from lines extracted from .fas1k
-def subseq_from_lines(start,end,line_len,lines):
-        # Retrieve the sequence
-        curr_line = start // line_len
-        start_index = start %  line_len
-        end_line = end // line_len
-        end_index = end % line_len
-        seq = ''
-        if curr_line == end_line:
-                seq += lines[curr_line].strip()[start_index:end_index]
-        else:
-                seq += lines[curr_line].strip()[start_index:]
-                curr_line += 1
-                while curr_line < end_line:
-                        seq += lines[curr_line].strip()
-                        curr_line += 1
-                seq += lines[curr_line].strip()[:end_index]
-        return(seq)
-
-def extract_strain_subseq(start,end,strain_file):
-        # Prep relevant values
-        strain = open(strain_file,'r')
-        lines = strain.readlines()
-        strain.close()
-        line_len = len(lines[0].strip())
-        seq = subseq_from_lines(start,end,line_len,lines)
-        return(seq)
+def extract_fas1k_subseq(start, end, fas1k):
+    ''' Extract subsequence from fas1k file. Coordinates in Python numbering space, e.g. from 0:len-1
+    # Functions stolen from Chris to get nt of interest from fas1k files.
+    # Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py" '''
+    # Prep relevant values
+    strain = open(strain_file,'r')
+    lines = strain.readlines()
+    strain.close()
+    line_len = len(lines[0].strip())
+    seq = subseq_from_lines(start,end,line_len,lines)
+    return(seq)
 
 def get_fas1k_length(fas1k_file):
     ''' Returns nt length of fas1k file..'''
@@ -82,3 +84,33 @@ def get_fas1k_char(fas1k_file):
     for i in range(len(lines)-1):
         all_char_set.update(set(lines[i].strip()))
     return all_char_set
+
+def validate_fas1k(fas1k_file, verbosity=1, ref_fa=[], soft_mask=False):
+    ''' Validate fas1k file. If a reference genome is provided, compares file length against expected. '''
+    ploidy = get_fas1k_ploidy(fas1k_file, soft_mask)
+    length = get_fas1k_length(fas1k_file)
+    chrom = get_chr_string(fas1k_file)
+    # 1. Check that each line is 1000 characters.
+    # 2. Check no illegal characters are present.
+    # 3. (Optional) If ref genome provided, check against appropriate scaffold length.
+    if (len(ref_fa) == 1):
+        print("Checking length")
+    if (verbosity == 0):
+        print("something")        
+    return str(ploidy) + str(length)
+    #chrom = get_fas1k_chrom(fas1k_file)
+
+def get_chr_string(fas1k_file):
+    '''Get chromosome from name of.fas1k files. '''
+    # Provide list of acceptable chr names
+    chr_list = ['Chr2L', 'Chr2R', 'Chr3L', 'Chr3R', 'Chr4', 'ChrX', 'Yhet', 'ChrX']
+    # string match file name against chr names
+    bool_list = [chr in fas1k_file for chr in chr_list]
+    # Get chr names contained w/i file name
+    filtered_list = [i for (i, v) in zip(chr_list, bool_list) if v]
+    if ((len(filtered_list) == 0) | (len(filtered_list) > 1)):
+        return "Error, can't get chr string from file name: " + fas1k_file
+    elif (len(filtered_list) == 1):
+        return filtered_list[0]
+
+
