@@ -4,9 +4,11 @@ import os.path
 import pandas as pd
 
 def subseq_from_lines(start, end, line_len, lines):
-    ''' Helper function for extract_strain_subseq, you probably don't want to call this.
+    ''' 
+    Helper function for extract_strain_subseq, you probably don't want to call this.
     # Functions stolen from Chris to get nt of interest from fas1k files.
-    # Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py" '''
+    # Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py"
+    '''
     # Retrieve the sequence
     curr_line = start // line_len
     start_index = start %  line_len
@@ -25,9 +27,11 @@ def subseq_from_lines(start, end, line_len, lines):
     return(seq)
 
 def extract_fas1k_subseq(start, end, fas1k):
-    ''' Extract subsequence from fas1k file. Coordinates in Python numbering space, e.g. from 0:len-1
+    '''
+    Extract subsequence from fas1k file. Coordinates in Python numbering space, e.g. from 0:len-1
     # Functions stolen from Chris to get nt of interest from fas1k files.
-    # Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py" '''
+    # Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py"
+    '''
     # Prep relevant values
     strain = open(strain_file,'r')
     lines = strain.readlines()
@@ -94,7 +98,8 @@ def validate_fas1k(fas1k_file, verbosity=1, ref_fa=[], soft_mask=False):
     # 2. Check no illegal characters are present.
     # 3. (Optional) If ref genome provided, check against appropriate scaffold length.
     if (len(ref_fa) == 1):
-        print("Checking length")
+        ref_scaff = arm_to_int(chrom)
+        print("Checking length of" + str(ref_scaff) )
     if (verbosity == 0):
         print("something")        
     return str(ploidy) + str(length)
@@ -113,4 +118,9 @@ def get_chr_string(fas1k_file):
     elif (len(filtered_list) == 1):
         return filtered_list[0]
 
-
+def arm_to_int(chr_string, lookup_table="int_to_arm.txt"):
+    ''' Reference genome has integer scaffold names, translate from arm names to ref names. '''
+    # Compare to lookup table to get integer name from ref genome
+    lookup = pd.read_table(lookup_table, header=None, sep=" ")
+    int_out = lookup[lookup[1] == chr_string].iloc[0]
+    return str(int_out.iloc[0])

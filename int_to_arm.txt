@@ -1,0 +1,16 @@
+1 Yhet
+2 mtDNA
+3 2L
+4 X
+5 3L
+6 4
+7 2R
+8 3R
+9 Uextra
+10 2RHet
+11 2LHet
+12 3LHet
+13 3RHet
+14 U
+15 XHet
+16 Wolbachia
