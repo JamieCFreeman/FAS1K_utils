@@ -3,6 +3,37 @@
 import os.path
 import pandas as pd
 
+
+# Functions stolen from Chris to get nt of interest from fas1k files.
+# Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py"
+# For retrieving a sequence from lines extracted from .fas1k
+def subseq_from_lines(start,end,line_len,lines):
+        # Retrieve the sequence
+        curr_line = start // line_len
+        start_index = start %  line_len
+        end_line = end // line_len
+        end_index = end % line_len
+        seq = ''
+        if curr_line == end_line:
+                seq += lines[curr_line].strip()[start_index:end_index]
+        else:
+                seq += lines[curr_line].strip()[start_index:]
+                curr_line += 1
+                while curr_line < end_line:
+                        seq += lines[curr_line].strip()
+                        curr_line += 1
+                seq += lines[curr_line].strip()[:end_index]
+        return(seq)
+
+def extract_strain_subseq(start,end,strain_file):
+        # Prep relevant values
+        strain = open(strain_file,'r')
+        lines = strain.readlines()
+        strain.close()
+        line_len = len(lines[0].strip())
+        seq = subseq_from_lines(start,end,line_len,lines)
+        return(seq)
+
 def get_fas1k_length(fas1k_file):
     ''' Returns nt length of fas1k file..'''
     fas1k = open(fas1k_file,'r')
