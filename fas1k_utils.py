@@ -90,17 +90,19 @@ def get_fas1k_char(fas1k_file):
     return all_char_set
 
 def validate_fas1k(fas1k_file, verbosity=1, ref_fai="", soft_mask=False):
-    ''' Validate fas1k file. If a reference genome is provided, compares file length against expected. '''
+    ''' Validate fas1k file. If a reference genome is provided, compares file length against expected.
+    Returns a list of booleans for 3 checks:
+    # 1. Check that each line is 1000 characters.
+    # 2. Check no illegal characters are present. (By default, not expecting soft masked characters,
+            if soft masking present, set soft_mask=True).
+    # 3. (Optional) If ref genome provided, check against appropriate scaffold length.
+    '''
     ploidy = get_fas1k_ploidy(fas1k_file, soft_mask)
     length = get_fas1k_length(fas1k_file)
     chrom = get_chr_string(fas1k_file)
     out_list = []
     # 1. Check that each line is 1000 characters.
-    fas1k = open(fas1k_file,'r')
-    lines = fas1k.readlines()
-    fas1k.close()
-    all_line_len = [len(lines[i].strip()) for i in range(0, len(lines)-1)]
-    out_list.append(  all([ (all_line_len[i] == 1000) for i in range(0, len(all_line_len)) ]) )
+    out_list.append( check_fas1k_wrap(fas1k_file) )
     # 2. Check no illegal characters are present.
     if ( (ploidy == 1) | (ploidy == 2) ):
         out_list.append(True)
@@ -119,15 +121,24 @@ def validate_fas1k(fas1k_file, verbosity=1, ref_fai="", soft_mask=False):
         else:
             out_list.append(False)
         #print( "Fas1k length matches ref genome? " + str(length) + "  " + str(length_match))
-    if (verbosity == 0):
-        print("something")
-    return out_list
+    if (verbosity == 1):
+        return out_list
+    # would be nice to add a more verbose version
     #return "ploidy: " + str(ploidy) + "length: " + str(length) + "chr: " + str(chrom)
+
+def check_fas1k_wrap(fas1k_file):
+    ''' Check file is make up of lines of 1000 characters (excluding last). Return True or False. '''
+    fas1k = open(fas1k_file,'r')
+    lines = fas1k.readlines()
+    fas1k.close()
+    all_line_len = [len(lines[i].strip()) for i in range(0, len(lines)-1)]
+    bool_out =  all([ (all_line_len[i] == 1000) for i in range(0, len(all_line_len)) ])
+    return bool_out
 
 def get_chr_string(fas1k_file):
     '''Get chromosome from name of.fas1k files. '''
     # Provide list of acceptable chr names
-    chr_list = ['Chr2L', 'Chr2R', 'Chr3L', 'Chr3R', 'Chr4', 'ChrX', 'Yhet', 'ChrX']
+    chr_list = ['Chr2L', 'Chr2R', 'Chr3L', 'Chr3R', 'Chr4', 'ChrX', 'Yhet', 'mtDNA']
     # string match file name against chr names
     bool_list = [chr in fas1k_file for chr in chr_list]
     # Get chr names contained w/i file name
