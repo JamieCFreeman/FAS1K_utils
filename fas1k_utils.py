@@ -46,7 +46,7 @@ def get_fas1k_length(fas1k_file):
     lines = fas1k.readlines()
     fas1k.close()
     line_len = len(lines[0].strip())
-    n_lines = len(lines)
+    n_lines = len(lines) - 1
     last_line = len(lines[len(lines)-1].strip())
     return (n_lines*line_len) + last_line
 
@@ -94,8 +94,18 @@ def validate_fas1k(fas1k_file, verbosity=1, ref_fai="", soft_mask=False):
     ploidy = get_fas1k_ploidy(fas1k_file, soft_mask)
     length = get_fas1k_length(fas1k_file)
     chrom = get_chr_string(fas1k_file)
+    out_list = []
     # 1. Check that each line is 1000 characters.
+    fas1k = open(fas1k_file,'r')
+    lines = fas1k.readlines()
+    fas1k.close()
+    all_line_len = [len(lines[i].strip()) for i in range(0, len(lines)-1)]
+    out_list.append(  all([ (all_line_len[i] == 1000) for i in range(0, len(all_line_len)) ]) )
     # 2. Check no illegal characters are present.
+    if ( (ploidy == 1) | (ploidy == 2) ):
+        out_list.append(True)
+    else:
+        out_list.append(False)
     # 3. (Optional) If ref genome provided, check against appropriate scaffold length.
     if (len(ref_fai) > 0):
         # Get ref genome scaffold name
@@ -104,10 +114,15 @@ def validate_fas1k(fas1k_file, verbosity=1, ref_fai="", soft_mask=False):
         lookup = pd.read_table(ref_fai, header=None)
         ref_length = lookup[lookup[0] == ref_scaff].iloc[:,1].item()
         length_match = ref_length == length
-        print( "Fas1k length matches ref genome? " + str(length) + "  " + str(length_match))
+        if (length_match == True):
+            out_list.append(True)
+        else:
+            out_list.append(False)
+        #print( "Fas1k length matches ref genome? " + str(length) + "  " + str(length_match))
     if (verbosity == 0):
-        print("something")        
-    return "ploidy: " + str(ploidy) + "length: " + str(length) + "chr: " + str(chrom)
+        print("something")
+    return out_list
+    #return "ploidy: " + str(ploidy) + "length: " + str(length) + "chr: " + str(chrom)
 
 def get_chr_string(fas1k_file):
     '''Get chromosome from name of.fas1k files. '''
