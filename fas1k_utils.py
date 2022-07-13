@@ -89,7 +89,7 @@ def get_fas1k_char(fas1k_file):
         all_char_set.update(set(lines[i].strip()))
     return all_char_set
 
-def validate_fas1k(fas1k_file, verbosity=1, ref_fa=[], soft_mask=False):
+def validate_fas1k(fas1k_file, verbosity=1, ref_fai="", soft_mask=False):
     ''' Validate fas1k file. If a reference genome is provided, compares file length against expected. '''
     ploidy = get_fas1k_ploidy(fas1k_file, soft_mask)
     length = get_fas1k_length(fas1k_file)
@@ -97,13 +97,17 @@ def validate_fas1k(fas1k_file, verbosity=1, ref_fa=[], soft_mask=False):
     # 1. Check that each line is 1000 characters.
     # 2. Check no illegal characters are present.
     # 3. (Optional) If ref genome provided, check against appropriate scaffold length.
-    if (len(ref_fa) == 1):
+    if (len(ref_fai) > 0):
+        # Get ref genome scaffold name
         ref_scaff = arm_to_int(chrom)
-        print("Checking length of" + str(ref_scaff) )
+        # Get scaffold length from the fasta index
+        lookup = pd.read_table(ref_fai, header=None)
+        ref_length = lookup[lookup[0] == ref_scaff].iloc[:,1].item()
+        length_match = ref_length == length
+        print( "Fas1k length matches ref genome? " + str(length) + "  " + str(length_match))
     if (verbosity == 0):
         print("something")        
-    return str(ploidy) + str(length)
-    #chrom = get_fas1k_chrom(fas1k_file)
+    return "ploidy: " + str(ploidy) + "length: " + str(length) + "chr: " + str(chrom)
 
 def get_chr_string(fas1k_file):
     '''Get chromosome from name of.fas1k files. '''
@@ -120,7 +124,15 @@ def get_chr_string(fas1k_file):
 
 def arm_to_int(chr_string, lookup_table="int_to_arm.txt"):
     ''' Reference genome has integer scaffold names, translate from arm names to ref names. '''
+    # Some of the chr names start with "Chr"- need to strip this out without disturbing names of those 
+    #   who don't. Split the string on "Chr"- if starts with "Chr" this outputs a list with 2 entries:
+    #   0th empty string & 1st the name. If "Chr" not present, just 1 entry: str of name.
+    split_list = chr_string.split("Chr")
+    # bool("") = False and bool("anystring") = True
+    bool_list = [bool(i) for i in split_list ]
+    filtered_list = [i for (i, v) in zip(split_list, bool_list) if v]
+    chr_string = filtered_list[0]
     # Compare to lookup table to get integer name from ref genome
     lookup = pd.read_table(lookup_table, header=None, sep=" ")
     int_out = lookup[lookup[1] == chr_string].iloc[0]
-    return str(int_out.iloc[0])
+    return int_out.iloc[0]
