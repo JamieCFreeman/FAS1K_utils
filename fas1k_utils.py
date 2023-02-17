@@ -26,14 +26,14 @@ def subseq_from_lines(start, end, line_len, lines):
             seq += lines[curr_line].strip()[:end_index]
     return(seq)
 
-def extract_fas1k_subseq(start, end, fas1k):
+def extract_fas1k_subseq(start, end, fas1k_file):
     '''
     Extract subsequence from fas1k file. Coordinates in Python numbering space, e.g. from 0:len-1
     # Functions stolen from Chris to get nt of interest from fas1k files.
     # Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py"
     '''
     # Prep relevant values
-    strain = open(strain_file,'r')
+    strain = open(fas1k_file,'r')
     lines = strain.readlines()
     strain.close()
     line_len = len(lines[0].strip())
@@ -134,6 +134,11 @@ def check_fas1k_wrap(fas1k_file):
     all_line_len = [len(lines[i].strip()) for i in range(0, len(lines)-1)]
     bool_out =  all([ (all_line_len[i] == 1000) for i in range(0, len(all_line_len)) ])
     return bool_out
+
+def get_fai_scaff_length(ref_scaff, ref_fai):
+    lookup = pd.read_table(ref_fai, header=None)
+    ref_length = lookup[lookup[0] == ref_scaff].iloc[:,1].item()
+    return ref_length
 
 def get_chr_string(fas1k_file):
     '''Get chromosome from name of.fas1k files. '''
