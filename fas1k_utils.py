@@ -89,57 +89,6 @@ def get_fas1k_char(fas1k_file):
         all_char_set.update(set(lines[i].strip()))
     return all_char_set
 
-def validate_fas1k(fas1k_file, verbosity=1, ref_fai="", soft_mask=False):
-    ''' Validate fas1k file. If a reference genome is provided, compares file length against expected.
-    Returns a list of booleans for 3 checks:
-    # 1. Check that each line is 1000 characters.
-    # 2. Check no illegal characters are present. (By default, not expecting soft masked characters,
-            if soft masking present, set soft_mask=True).
-    # 3. (Optional) If ref genome provided, check against appropriate scaffold length.
-    '''
-    ploidy = get_fas1k_ploidy(fas1k_file, soft_mask)
-    length = get_fas1k_length(fas1k_file)
-    chrom = get_chr_string(fas1k_file)
-    out_list = []
-    # 1. Check that each line is 1000 characters.
-    out_list.append( check_fas1k_wrap(fas1k_file) )
-    # 2. Check no illegal characters are present.
-    if ( (ploidy == 1) | (ploidy == 2) ):
-        out_list.append(True)
-    else:
-        out_list.append(False)
-    # 3. (Optional) If ref genome provided, check against appropriate scaffold length.
-    if (len(ref_fai) > 0):
-        # Get ref genome scaffold name
-        ref_scaff = arm_to_int(chrom)
-        # Get scaffold length from the fasta index
-        lookup = pd.read_table(ref_fai, header=None)
-        ref_length = lookup[lookup[0] == ref_scaff].iloc[:,1].item()
-        length_match = ref_length == length
-        if (length_match == True):
-            out_list.append(True)
-        else:
-            out_list.append(False)
-        #print( "Fas1k length matches ref genome? " + str(length) + "  " + str(length_match))
-    if (verbosity == 1):
-        return out_list
-    # would be nice to add a more verbose version
-    #return "ploidy: " + str(ploidy) + "length: " + str(length) + "chr: " + str(chrom)
-
-def check_fas1k_wrap(fas1k_file):
-    ''' Check file is make up of lines of 1000 characters (excluding last). Return True or False. '''
-    fas1k = open(fas1k_file,'r')
-    lines = fas1k.readlines()
-    fas1k.close()
-    all_line_len = [len(lines[i].strip()) for i in range(0, len(lines)-1)]
-    bool_out =  all([ (all_line_len[i] == 1000) for i in range(0, len(all_line_len)) ])
-    return bool_out
-
-def get_fai_scaff_length(ref_scaff, ref_fai):
-    lookup = pd.read_table(ref_fai, header=None)
-    ref_length = lookup[lookup[0] == ref_scaff].iloc[:,1].item()
-    return ref_length
-
 def get_chr_string(fas1k_file):
     '''Get chromosome from name of.fas1k files. '''
     # Provide list of acceptable chr names
