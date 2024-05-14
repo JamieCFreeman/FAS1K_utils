@@ -79,10 +79,10 @@ def check_inv_snps(fas1k_file, snp_file, controls=False):
 	
 	if (controls == True):
 		# Add inversion control and no inversion control to the run
-		inv_control = pd.read_table("inv_control_files.txt", header=None)
-		inv_control_file = inv_control[ inv_control[0] == snp_table[0][1] ].iloc[0][1]
+		inv_control        = pd.read_table("inv_control_files.txt", header=None)
+		inv_control_file   = inv_control[ inv_control[0] == snp_table[0][1] ].iloc[0][1]
 		noinv_control_file = transform_arm("/raid10/backups/genepool/DPGP2plus/wrap1kb/Chr3R/FR153N_Chr3R.fas1k", current_arm)
-		current_files = [inv_control_file, noinv_control_file] + current_files
+		current_files      = [inv_control_file, noinv_control_file] + current_files
 	
 	pos = snp_table[2]
 	for y in current_files:
@@ -118,8 +118,8 @@ def check_het(snp_table):
 	Are any sites heterozygous? Return ploidy of SNP set
 	'''
 	homoz_set = set(('A', 'T', 'C', 'G', 'N'))
-	het_set = set(('Y', 'R', 'W', 'S', 'K', 'M'))
-	snp_set = set((snp_table.iloc[:, 4].str.cat()))
+	het_set   = set(('Y', 'R', 'W', 'S', 'K', 'M'))
+	snp_set   = set((snp_table.iloc[:, 4].str.cat()))
 	
 	# Does the snp_set intersect with the heterozygous codes?
 	if ( len(snp_set.intersection(het_set)) > 0):
@@ -138,7 +138,7 @@ het_dict= {
 
 def count_het_table(snp_table, x):
 	het_sites = [ snp_table.iloc[y, x] in het_dict.keys() for y in range(0,snp_table.shape[0]) ]
-	het_idx = list(compress(range(len(het_sites)), het_sites))
+	het_idx   = list(compress(range(len(het_sites)), het_sites))
 	return( sum([ snp_table.iloc[i, 3] in het_dict[snp_table.iloc[i, x]] for i in het_idx ]) )
 
 def check_all_inv_snps(fas1k, file_list=get_inv_snp_files()):
@@ -146,7 +146,7 @@ def check_all_inv_snps(fas1k, file_list=get_inv_snp_files()):
 	
 	for z in file_list:
 		print(z)
-		tmp_out = count_snp_table(check_inv_snps(fas1k, z))
+		tmp_out     = count_snp_table(check_inv_snps(fas1k, z))
 		collect_all = pd.concat([collect_all, tmp_out], ignore_index=True)
 	
 	return collect_all
