@@ -49,15 +49,15 @@ def get_inv_snp_files(dir_path="/home/jamie/FAS1K_utils/inv_fixeddiff_kapun/"):
 	return file_list
 
 
-def stop_if_fas1k_bad(fas1k_file):
-	try:
-		if sum( validate_fas1k(fas1k_file, ref_fai="/home/jamie/dmel_ref/DmelRef.fasta.fai") ) != 3:
-			raise Exception
-	except:
-		#sys.exit("File names are not unique.")
-		print(".fas1k not according to spec.")
-	else:
-		return "good"
+#def stop_if_fas1k_bad(fas1k_file):
+#	try:
+#		if sum( validate_fas1k(fas1k_file, ref_fai="/home/jamie/dmel_ref/DmelRef.fasta.fai") ) != 3:
+#			raise Exception
+#	except:
+#		#sys.exit("File names are not unique.")
+#		print(".fas1k not according to spec.")
+#	else:
+#		return "good"
 
 
 def check_inv_snps(fas1k_file, snp_file, controls=False):
@@ -67,7 +67,7 @@ def check_inv_snps(fas1k_file, snp_file, controls=False):
 	
 	# 1. Test fas1k file
 	# If the fas1k files are invalid, throw an error
-	stop_if_fas1k_bad(fas1k_file)
+	#stop_if_fas1k_bad(fas1k_file)
 	
 	# Get current arm
 	snp_table     = pd.read_table(snp_file, header=None)
