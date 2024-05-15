@@ -71,7 +71,7 @@ def check_inv_snps(fas1k_file, snp_file, controls=False):
 	
 	# Get current arm
 	snp_table     = pd.read_table(snp_file, header=None)
-	current_arm   = snp_table.iloc[1][1]
+	current_arm   = snp_table.iloc[0][1]
 	strain_files  = [ fas1k_file ]
 	current_files = [ transform_arm(x, current_arm) for x in strain_files ]
 	
@@ -100,7 +100,7 @@ def count_snp_table(snp_table):
 	n_counts     = [ sum( snp_table.iloc[:, x] == "N" ) for x in range(4,snp_table.shape[1]) ]
 	homoz_match  = [ sum( snp_table.iloc[:, x] == snp_table[3] ) for x in range(4,snp_table.shape[1]) ]
 	site_counts  = [ sum( snp_table.iloc[:, x] != "N" ) for x in range(4,snp_table.shape[1]) ]
-	inv          = [ snp_table[0][1] for x in range(4,snp_table.shape[1]) ]
+	inv          = [ snp_table[0][0] for x in range(4,snp_table.shape[1]) ]
 	
 	# Are there any heterozygous sites? If there are go through and look for het matches, otherwise set het matches to 0
 	if (check_het(snp_table)==2):
