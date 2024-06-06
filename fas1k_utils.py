@@ -10,20 +10,24 @@ def subseq_from_lines(start, end, line_len, lines):
     # Specifically from "/raid10/chris/amplicon_design/primer_gen/inv_primer_gen.py"
     '''
     # Retrieve the sequence
-    curr_line = start // line_len
+    start_line = start // line_len
+    curr_line = start_line
     start_index = start %  line_len
     end_line = end // line_len
     end_index = end % line_len
     seq = ''
-    if curr_line == end_line:
-        seq += lines[curr_line].strip()[start_index:end_index]
-    else:
-        seq += lines[curr_line].strip()[start_index:]
+    # Reworked logic here
+    while curr_line < end_line:
+        if curr_line == start_line:
+            start_now = start_index
+        else:
+            start_now = 0
+        stop_now = 1000 
+        seq += lines[curr_line].strip()[start_now:stop_now]
         curr_line += 1
-        while curr_line < end_line:
-            seq += lines[curr_line].strip()
-            curr_line += 1
-            seq += lines[curr_line].strip()[:end_index]
+    if curr_line == end_line:
+        stop_now = end_index
+        seq += lines[curr_line].strip()[start_now:stop_now] 
     return(seq)
 
 def extract_fas1k_subseq(start, end, fas1k_file):
