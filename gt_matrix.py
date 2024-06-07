@@ -10,6 +10,7 @@
 ###############################################################
 
 from fas1k_utils import *
+from itertools import compress
 
 ###############################################################
 # Functions used to generate the matrix
@@ -121,6 +122,24 @@ def convert_site(l):
 		return s
 
 ###############################################################
+
+def gen_gt_mat(sample_list, ref_fas1k, pos_min, pos_max):
+	# Need to iterate over an unknown number of sequences together- would normally use list comprehension here 
+	# First create a list of the read in fas1k sequences
+	str_list = [ extract_fas1k_subseq(pos_min, pos_max, ref_fas1k) ] + [ extract_fas1k_subseq(pos_min, pos_max, x) for x in sample_list ]
+	# Then unpack the list, zip them together, and format zip object as list
+	merge    = list(zip(*str_list))
+	# Now use list comprehension to join each position into 1 string-
+	# 	resulting list has entries equalling the number of sites with each entry
+	# 	a string of ref_allele + all sample alleles
+	zipped   = [ ''.join(x) for x in merge ]
+	
+	out = [ convert_site(x) for x in zipped ]
+	
+	return out
+
+###############################################################
+
 # Functions used to filter the matrix
 
 def filt_list(l, f, *args):
