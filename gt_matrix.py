@@ -12,6 +12,7 @@
 from fas1k_utils import *
 
 ###############################################################
+# Functions used to generate the matrix
 
 def flatten_list(l):
 	return [item for sublist in l for item in sublist]
@@ -120,4 +121,41 @@ def convert_site(l):
 		return s
 
 ###############################################################
+# Functions used to filter the matrix
 
+def filt_list(l, f, *args):
+	'''
+	Takes a list to filter, a function that will return a bool list representing
+	the filter action to be taken, and any arguments for the filtering function
+	'''
+	# If other arguments are provided, use them
+	a = [*args]
+	if (len(a) > 0):
+		b = [ f(x, a[0]) for x in l ]
+	else:
+		b = [ f(x) for x in l ]
+	return list( compress(l, b) )
+
+# If any rows are same across all samples, they are non-informative for PCA
+
+def set_length_string(s):
+	# For a string, split into characters and return set length
+	return len( set([*s]) )
+
+def apply_set_length_ge1(s):
+	# If only one state, uninformative for PCA
+	return set_length_string( s.strip()) != 1
+
+def n_count(s):
+	# For a string, split into characters and count the 
+	n = sum( [ x == '9' for x in [*s] ] )
+	return n
+
+def apply_n_thres(s, t):
+	# Filter rows with too much missing data (missing in 1/4 of data)
+	return n_count(s) < t
+
+def apply_n_thres2(s):
+	# If only 1 state + missing, also uninformative
+	b = ( set_length_string( s.strip()) == 2 ) & ( n_count(s) > 0 )
+	return not b
