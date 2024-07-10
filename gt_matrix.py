@@ -9,8 +9,9 @@
 
 ###############################################################
 
-from fas1k_utils import *
+import fas1k_utils as f1k
 from itertools import compress
+import re
 
 ###############################################################
 # Functions used to generate the matrix
@@ -42,7 +43,6 @@ def all_n(l):
 	# Returns 0 if no called sites
 	m = l[1:len(l)]
 	return len( set(m).difference(set('N')) )
-
 
 def check_het(l, verbosity=0):
 	'''
@@ -109,6 +109,9 @@ def gt_site(l):
 	return s
 
 def convert_site(l):
+	'''
+	For a string of alleles
+	'''
 	# If all sites are n, return a 9 for each sample
 	if ( all_n(l) == 0 ):
 		s = '9' * ( len(l) -1 )
@@ -121,22 +124,95 @@ def convert_site(l):
 		s = '3' * ( len(l) -1 )
 		return s
 
+
+def expand_set_het(s):
+	'''
+	For a set of nucleotides, expand heterozygous codes into 
+	component nucleotides, and return expanded set of nucleotides
+	'''
+	het_sites = set(het_dict.keys()).intersection(s)
+	if len(het_sites) > 0:
+		return s.union(het_dict[ list(het_sites)[0] ]) - het_sites
+	elif len(het_sites) == 0:
+		return s
+
+def get_snp_line(x, chrom, p1, nt_set):
+	'''
+    Input is a single line from the f1k_zip and its positioning details
+    '''
+	pos = x + p1
+	snp_name = chrom + '_' + str(pos)
+	# Ref f1k entry is the first in the string, alt allele will be any other
+	#   non-N nt (tri-nt sites will be filtered later- this would arbitrarily choose one)
+	ref = nt_set[0]
+	alt = expand_set_het( set( nt_set ) ) - { nt_set[0], 'N' }
+	
+	# Alt above is a set, need to extract nt entry, or
+	# If no alt allele, set alt to X as per Eigenstrat spec
+	if len(alt) == 1:
+		alt = list(alt)[0]
+	elif len(alt) == 0:
+		alt = 'X'
+	elif len(alt) > 1:
+		alt = 'multi'
+	
+	# Position in morgans- set to 0 for unkown
+	pos_m = 0
+	
+	# Columns are snp_name, chr, genetic pos in M (0 if unknown), pos in bp, ref, var 
+	#(For monomorphic SNPs, the variant allele can be encoded as X (unknown) )
+	snp_line = snp_name + '\t' + str(f1k.arm_to_int(chrom)) + '\t' + str(pos_m) + '\t' + str(pos) + '\t' + ref +'\t' + alt
+	
+	return snp_line
+
+def get_pop_code(s, k):
+	'''
+	For a string s, change case to upper, then check against a list 
+	of possible known population codes k. 
+	'''
+	# re.search for each pop code in the provided string, output -> bool, 
+	#	then compress list to matches 
+	o = list( compress(k, [ bool( re.search(x, s.upper() ) ) for x in k ]) )
+	# if len is 1, then pop code is good, should add some error handling for cases where
+	#	mult match or no match
+	if len(o) == 1:
+		return o[0]
+	if len(o) == 0:
+		return 'missing'
+
 ###############################################################
 
-def gen_gt_mat(sample_list, ref_fas1k, pos_min, pos_max):
-	# Need to iterate over an unknown number of sequences together- would normally use list comprehension here 
+def f1k_zip(sample_list, ref_fas1k, pos_min, pos_max):
+	'''
+    For given list of fas1k files, get a list over positions from min to max, where
+    each entry is a nt from each file in sample_list
+    '''
+    # Need to iterate over an unknown number of sequences together- would normally use list comprehension here 
 	# First create a list of the read in fas1k sequences
-	str_list = [ extract_fas1k_subseq(pos_min, pos_max, ref_fas1k) ] + [ extract_fas1k_subseq(pos_min, pos_max, x) for x in sample_list ]
+	str_list = [ f1k.extract_fas1k_subseq(pos_min, pos_max, ref_fas1k) ] + [ f1k.extract_fas1k_subseq(pos_min, pos_max, x) for x in sample_list ]
 	# Then unpack the list, zip them together, and format zip object as list
-	merge    = list(zip(*str_list))
+	zipped    = list(zip(*str_list))
 	# Now use list comprehension to join each position into 1 string-
 	# 	resulting list has entries equalling the number of sites with each entry
 	# 	a string of ref_allele + all sample alleles
-	zipped   = [ ''.join(x) for x in merge ]
+	merge   = [ ''.join(x) for x in zipped ]
 	
-	out = [ convert_site(x) for x in zipped ]
-	
-	return out
+	return merge
+
+def gen_snp_file(merge, chrom, pos_min):
+    '''
+    Need snp description file
+    '''
+    #snp_lines = [ get_snp_line(n, chrom, pos_min, merge[n]) for n in range(0,len(merge) - 1) ]
+    snp_lines = [ get_snp_line(n, chrom, pos_min, merge[n]) for n in range(0,len(merge))  ]
+        
+    return snp_lines
+
+def gen_gt_mat(merge):
+    # For each position, convert to eigenstrat 0/1/2/9 format string	
+    out = [ convert_site(x) for x in merge ]
+    return out
+
 
 ###############################################################
 
