@@ -3,6 +3,12 @@
 import os.path
 import pandas as pd
 
+def read_in(fas1k_file):
+    fas1k = open(fas1k_file,'r')
+    lines = fas1k.readlines()
+    fas1k.close()
+    return lines
+
 def subseq_from_lines(start, end, line_len, lines):
     ''' 
     Helper function for extract_strain_subseq, you probably don't want to call this.
@@ -46,9 +52,7 @@ def extract_fas1k_subseq(start, end, fas1k_file):
 
 def get_fas1k_length(fas1k_file):
     ''' Returns nt length of fas1k file..'''
-    fas1k = open(fas1k_file,'r')
-    lines = fas1k.readlines()
-    fas1k.close()
+    lines = read_in(fas1k_file)
     line_len = len(lines[0].strip())
     n_lines = len(lines) - 1
     last_line = len(lines[len(lines)-1].strip())
@@ -85,9 +89,7 @@ def get_fas1k_ploidy(fas1k_file, soft_mask=False):
 
 def get_fas1k_char(fas1k_file):
     ''' Returns a python set of all characters present in file. '''
-    fas1k = open(fas1k_file,'r')
-    lines = fas1k.readlines()
-    fas1k.close()
+    lines = read_in(fas1k_file)
     all_char_set = set(lines[0].strip())
     for i in range(len(lines)-1):
         all_char_set.update(set(lines[i].strip()))
