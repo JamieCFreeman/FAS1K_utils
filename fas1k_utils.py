@@ -108,7 +108,9 @@ def get_chr_string(fas1k_file):
     elif (len(filtered_list) == 1):
         return filtered_list[0]
 
-def arm_to_int(chr_string, lookup_table="int_to_arm.txt"):
+arm_lookup = {'Yhet': 1, 'mtDNA': 2, '2L': 3, 'X': 4, '3L': 5, '4': 6, '2R': 7, '3R': 8, 'Uextra': 9,
+                    '2RHet': 10, '2LHet': 11, '3LHet': 12, '3RHet': 13, 'U': 14, 'Xhet': 15, 'Wolbachia': 16 } 
+def arm_to_int(chr_string, lookup_table=arm_lookup):
     ''' Reference genome has integer scaffold names, translate from arm names to ref names. '''
     # Some of the chr names start with "Chr"- need to strip this out without disturbing names of those 
     #   who don't. Split the string on "Chr"- if starts with "Chr" this outputs a list with 2 entries:
@@ -118,7 +120,18 @@ def arm_to_int(chr_string, lookup_table="int_to_arm.txt"):
     bool_list = [bool(i) for i in split_list ]
     filtered_list = [i for (i, v) in zip(split_list, bool_list) if v]
     chr_string = filtered_list[0]
+    return arm_lookup[chr_string]
+
     # Compare to lookup table to get integer name from ref genome
-    lookup = pd.read_table(lookup_table, header=None, sep=" ")
-    int_out = lookup[lookup[1] == chr_string].iloc[0]
-    return int_out.iloc[0]
+    #lookup = pd.read_table(lookup_table, header=None, sep=" ")
+    #int_out = lookup[lookup[1] == chr_string].iloc[0]
+    #return int_out.iloc[0]
+
+def get_name(file_path):
+    '''
+    From a string representing an absolute file path to a .fas1k file, removing leading
+    directory paths and any text after an '_'.
+    '''
+    line_name = file_path.split("/")[len(file_path.split("/"))-1].split("_")[0]
+    return line_name
+
