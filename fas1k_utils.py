@@ -32,6 +32,10 @@ def subseq_from_lines(start, end, line_len, lines):
         seq += lines[curr_line].strip()[start_now:stop_now]
         curr_line += 1
     if curr_line == end_line:
+        if curr_line == start_line:
+            start_now = start_index
+        else:
+            start_now = 0
         stop_now = end_index
         seq += lines[curr_line].strip()[start_now:stop_now] 
     return(seq)
