@@ -24,15 +24,11 @@ from fas1k_utils import *
 from itertools import compress
 import re
 
-
-
-
 ######################################################################
 
 def transform_arm(file_path, arm):
 	file_arm           = file_path.split("Chr")[1][0:2]
 	return re.sub(file_arm, arm, file_path)
-
 
 
 def get_name(file_path):
@@ -152,7 +148,9 @@ def check_all_inv_snps(fas1k, file_list=get_inv_snp_files()):
 	return collect_all
 
 
+#######################################################################
 
+# Functio
 
 
 
