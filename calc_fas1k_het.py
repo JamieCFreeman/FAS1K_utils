@@ -87,3 +87,16 @@ def get_hom_tract_lengths(file_name):
     # Return list of tract lenghts
     return tracts_out
 
+###############################################################
+
+if __name__ == "__main__":
+    import sys
+    fas1k_in = sys.argv[1]
+    print( per_site_het(fas1k_in, skip_lin1=False) )
+
+
+
+
+
+
+
