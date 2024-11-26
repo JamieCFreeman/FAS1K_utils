@@ -102,19 +102,21 @@ def compare_fas1k(path1, path2, comp_func=calc_seq_diff):
     out = [os.path.basename(path1), os.path.basename(path2), seqdiffs, total_length, prop_diff]
     return(out)
 
-def compare_fas1k_list(path1, file_list, comp_func=calc_seq_diff):
-    ''' Runs compare_fas1k against a list of fas1k files. Outputs pandas data frame.
-    Set function used to compare as ethier: calc_seq_diff (default), calc_seq_congruence
+def read_file_list(file_list):
+    ''' Read in list of files (one per line) and return as a list
     '''
     files = open(file_list, 'r', newline=None)
     lines = files.readlines()
     files.close()
-    output_list = []
-    for line in lines:
-        path2 = line.strip()
-        #print(path1, path2) 
-        output_list.append( compare_fas1k(path1, path2, comp_func) )
-    df = pd.DataFrame(output_list, columns = ['File1', 'File2', 'NDIFF', 'NCOMP', 'DISTANCE']) 
+    l     = [ x.strip() for x in lines ]
+    return l
+
+def compare_fas1k_list(path1, file_list, comp_func=calc_seq_diff):
+    ''' Runs compare_fas1k against a list of fas1k files. Outputs pandas data frame.
+    Set function used to compare as ethier: calc_seq_diff (default), calc_seq_congruence
+    '''
+    output_list = [ compare_fas1k(path1, x, comp_func) for x in file_list ]
+    df          = pd.DataFrame(output_list, columns = ['File1', 'File2', 'NDIFF', 'NCOMP', 'DISTANCE']) 
     return(df)
 
 def calc_seq_incongruence(x,y):
