@@ -1,10 +1,26 @@
 #!/usr/bin/env python3
 
+
+
+##########################################################################################
+
+# Usage:
+# On the command line, run:
+#	python validate_fas1k.py {file_path.fas1k} {optional reference genome fasta index (defaults to my dmel ref if not provided}
+# With current defaults returns nothing if all checks pass, returns file name if any checks fail.
+
+# I normally use on whole directory with parallel like so:
+# parallel \
+# "python validate_fas1k.py {}" \
+# :::: <( find /raid10/jamie/EF_genomes/round2/fas1k -iname "*.fas1k" )
+
+##########################################################################################
+
 import os.path
 import pandas as pd
 from fas1k_utils import *
 
-
+##########################################################################################
 
 def validate_fas1k(fas1k_file, verbosity=1, ref_fai="", soft_mask=False):
     ''' Validate fas1k file. If a reference genome is provided, compares file length against expected.
@@ -80,7 +96,7 @@ if __name__ == "__main__":
 #    print(check_val)
 
     if( check_val != 3 ):
-        print(file_name + str(check_val))
+        print(file_name)
 
 
 
