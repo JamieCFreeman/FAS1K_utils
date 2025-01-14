@@ -4,23 +4,29 @@ import os.path
 import pandas as pd
 
 # Function to calc per-site heterozygosity
-def calc_seq_het(file_name, skip_line1=False):
-    ''' 
-    Count heterozygous sites for fas1k file (or fasta file).
-    If fasta header is present, set skip_line1=True to ignore header line.
-    Output is list containing: file name, count of N calls, count of het calls, total sites (including Ns).
+def open_seq_file(file_name, skip_line1=False):
     '''
+    If fasta header is present, set skip_line1=True to ignore header line.
+    ''' 
     # Open input file , initialize empty variables
     vfile = open(file_name, 'r')
     # If fasta file w/ header, skip first line
     if skip_line1==True:
         line1 = vfile.readline().rstrip()
+    lines = [ x.strip() for x in vfile]
+    return lines
+
+def calc_seq_het(seq_list, file_name="name"):
+    ''' 
+    Count heterozygous sites for fas1k file (or fasta file).
+    Output is list containing: file name, count of N calls, count of het calls, total sites (including Ns).
+    '''
+    # Initialize empty variables
     n_calls = 0
     het_calls = 0
     total_sites = 0
     # Line by line count of het & N sites
-    for line in vfile:
-        line = line.strip('\n')
+    for line in seq_list:
         all_line = len(line)
         ncall_line = line.count('N')
         n_calls = n_calls + ncall_line
