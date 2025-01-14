@@ -87,7 +87,7 @@ def compare_fas1k(path1, path2, comp_func=calc_seq_diff):
     total_length = 0
     with open(path1) as file1, open(path2) as file2:
         for line1, line2 in zip(file1,file2):
-          cdiff = sum(comp_func(a,b) for a, b in zip(line1, line2) if a != 'N' and b != 'N')
+          cdiff = sum(comp_func(a,b) for a, b in zip(line1.strip(), line2.strip()) if a != 'N' and b != 'N')
           seqdiffs = seqdiffs + cdiff
           N_Line1 = [i for i, v in enumerate(line1) if v == 'N']
           N_Line2 = [i for i, v in enumerate(line2) if v == 'N']
