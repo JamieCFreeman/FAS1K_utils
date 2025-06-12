@@ -80,7 +80,7 @@ def calc_seq_diff(x,y):
 
 def compare_fas1k(path1, path2, comp_func=calc_seq_diff):
     ''' Expects two arguments, both paths to a .fas1k file. For a set of fas1k files, calculate pairwise seq distance
-    Set function used to compare as ethier: calc_seq_diff (default), calc_seq_congruence
+    Set function used to compare as either: calc_seq_diff (default), calc_seq_congruence
     Outputs a list of: [0]=path1, [1]=path2, [2]=number seq differences, [3]=total length seq (no comparison for any 
     nt where either seq has an N), [4]=differences/total length '''
     seqdiffs = 0
