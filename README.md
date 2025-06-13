@@ -2,8 +2,15 @@
 Python functions to handle the Pool lab's .fas1k file spec.
 
 .fas1k files are headerless fasta files with line breaks every 1000 chars to make multifile comparisons easy and to allow indexed acces to files.
+The chromosome arm is indicated in the file name. In the Nexus release, heterozygous regions were soft-masked (lowercase instead of uppercase).
+
+
+## Scripts for command-line use
 
 ##  Functions
+
+**extract_fas1k_subseq**(start, end, fas1k_file)
+Returns a specified subsequence of a fas1k file in 0-based coordinates (so if you are using reference genome coordinates make sure to subtract 1!). 
 
 **validate_fas1k(** file_name,verbosity=1, ref_fai, soft_mask=False **)**
 Checks a fas1k file for conformation to the fas1k specifications. Performs three checks (unless reference genome fasta index file is not provided, then 2).
