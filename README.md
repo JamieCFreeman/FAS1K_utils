@@ -9,8 +9,22 @@ The chromosome arm is indicated in the file name. In the Nexus release, heterozy
 
 ##  Functions
 
+
 **extract_fas1k_subseq**(start, end, fas1k_file)
 Returns a specified subsequence of a fas1k file in 0-based coordinates (so if you are using reference genome coordinates make sure to subtract 1!). 
+
+**get_chr_string**(fas1k_file)
+Extracts the chromosome identifier from the file name of a fas1k file. Should return one of ['Chr2L', 'Chr2R', 'Chr3L', 'Chr3R', 'Chr4', 'ChrX', 'Yhet', 'mtDNA']
+
+**arm_to_int**(chr_string, lookup_table=arm_lookup)
+For a chromsome arm string formatted as in fas1k file names, return the integer scaffold in the Drosophila reference genome.
+
+**get_fas1k_length**(fas1k_file)
+Returns the nucleotide length of a fas1k file. Does not check length of lines.
+
+**get_fas1k_ploidy**(fas1k_file, soft_mask=False)
+Returns the ploidy (1 or 2) of a fas1k file. Checks that the character set includes only legal characters 
+(nucleotides and ambiguity codes) and will return error if unexpected characters are present.
 
 **validate_fas1k(** file_name,verbosity=1, ref_fai, soft_mask=False **)**
 Checks a fas1k file for conformation to the fas1k specifications. Performs three checks (unless reference genome fasta index file is not provided, then 2).
