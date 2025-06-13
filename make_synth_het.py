@@ -4,7 +4,9 @@
 #
 # 2024 JCF
 #
-# Purpose: For PCA genotyping of In(3L)Ok need Zambia diploid sequences. 
+# Purpose: For PCA genotyping of In(3L)Ok need Zambia diploid sequences 
+#	   for clustering. From orginal DGN have
+#          many haploid, so will use to make synthetic diploid.
 #
 ############################################################
 
@@ -66,8 +68,11 @@ def add_nt(x, y):
     Make heterozygote of two sequences. If no heterozygosity, should be
     determenistic. If heterozygosity, sample alleles per parent.
     '''
-    # 
+    # Expand the nucleotide codes to all included 
     z = expand_set_het(set([x,y]))
+    # If there are >= 2 nt, check whether each parental allele is het  
+    #   if not, add the allele to out list
+    #   if it is, sample one nt and add to out list
     if(len(z)>=2):
         out = []
         for a in [x,y]:
@@ -76,14 +81,23 @@ def add_nt(x, y):
             elif( check_het(a) == 2):
                 out += random.sample(list(het_dict[a]), 1)
         z = set(out)
+    # If there is 1 nt, return that nt
     if(len(z)==1):
         return(x)
     for key, value in het_dict.items():
         if(value == z):
             return(key)
-    
 
-
-
+def sample_het(x):
+    '''
+    Sample a diploid sequence down to one allele
+    '''    
+    # Expand the nucleotide codes to all included 
+    z = expand_set_het(set([x]))
+    out = x
+    # If heterozygous, sample 1 (returns list w 1 element, so we take the 0th) 
+    if(len(z)>=2):
+        out = random.sample(list(het_dict[x]), 1)[0]
+    return out
 
 
