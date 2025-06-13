@@ -62,7 +62,7 @@ def validate_fas1k(fas1k_file, verbosity=1, ref_fai="", soft_mask=False):
     elif (verbosity == 1):
         return out_list
     elif (verbosity == 2):
-        s =  "ploidy: " + str(ploidy) + "length: " + str(length) + "chr: " + str(chrom)
+        s =  "ploidy: " + str(ploidy) + "length: " + str(length) + "correct length for chr " + str(chrom) + str(ref_length)
         return s
     # would be nice to add a more verbose version
     #return "ploidy: " + str(ploidy) + "length: " + str(length) + "chr: " + str(chrom)
