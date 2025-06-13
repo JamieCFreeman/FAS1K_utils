@@ -131,11 +131,12 @@ def arm_to_int(chr_string, lookup_table=arm_lookup):
     #int_out = lookup[lookup[1] == chr_string].iloc[0]
     #return int_out.iloc[0]
 
-def get_name(file_path):
+def get_name(file_path, end_pattern):
     '''
     From a string representing an absolute file path to a .fas1k file, removing leading
-    directory paths and any text after an '_'.
+    directory paths and any text after the string provided as end_pattern.
     '''
-    line_name = file_path.split("/")[len(file_path.split("/"))-1].split("_")[0]
+    #line_name = file_path.split("/")[len(file_path.split("/"))-1].split("_")[0]
+    line_name = file_path.split("/")[len(file_path.split("/"))-1].split(end_pattern)[0]
     return line_name
 
